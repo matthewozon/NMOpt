@@ -14,15 +14,33 @@
 #------------------------------------------------------------------------------
 
 # BFGS algorithm: compute Nbfgs iteration from the initial point X0 and the initial approximation of the inverse Hessian matrix H0
+
+"""
+
+    BFGS(X0::Array{Cdouble,1},H0::Array{Cdouble,2},Nbfgs::Int64,alpha_min::Cdouble,alpha_max::Cdouble,mu::Cdouble,F::Function,Fgrad::Function,Nsearch::Int64=50,tol::Cdouble=1.0e-8;verbose::Bool=false)
+
+    compute ̂x̂ ∈ argmin{F(x)}  using the quasi-Newton method BFGS (see [BFGS wikipedia](https://en.wikipedia.org/wiki/Broyden%E2%80%93Fletcher%E2%80%93Goldfarb%E2%80%93Shanno_algorithm))
+
+    X0:                  starting point
+    H0:                  initial inverse Hessian matrix
+    Nbfgs:               maximum number of iterations
+    alpha_min,alpha_max: line search maximum range
+    mu:                  line search parameter
+    Nsearch:             maximum number of iteration for the line search
+    F:                   cost function to minimize (x::Array{Cdouble}->F(x))
+    Fgrad:               gradient of the cost function (x::Array{Cdouble}->Fgrad(x))
+    tol:                 relative tolerance (stopping criteria: norm of the gradient difference (y), norm of the step (s) and cos(y,s))
+
+"""
 function BFGS(X0::Array{Cdouble,1},H0::Array{Cdouble,2},Nbfgs::Int64,alpha_min::Cdouble,alpha_max::Cdouble,mu::Cdouble,F::Function,Fgrad::Function,Nsearch::Int64=50,tol::Cdouble=1.0e-8;verbose::Bool=false)
     # allocate some variables and init TO DO: set as global variables
     p = Array{Cdouble,1}(undef,length(X0))
     y = Array{Cdouble,1}(undef,length(X0))
     y_tmp = Array{Cdouble,1}(undef,length(X0))
-    H = Array{Cdouble,2}(undef,size(H0,1),size(H0,2))
-    H = H0
-    X = Array{Cdouble,1}(undef,length(X0))
-    X = X0
+    # H = Array{Cdouble,2}(undef,size(H0,1),size(H0,2))
+    H = copy(H0)
+    # X = Array{Cdouble,1}(undef,length(X0))
+    X = copy(X0)
     y_tmp = Fgrad(X)
     Xpath = Array{Cdouble,2}(undef,Nbfgs+1,length(X0))
     Xpath[1,:] = X0
@@ -42,7 +60,9 @@ function BFGS(X0::Array{Cdouble,1},H0::Array{Cdouble,2},Nbfgs::Int64,alpha_min::
         y = Fgrad(X) - y_tmp
         y_tmp = y + y_tmp
         # update the approximation of the inverse Hessian matrix
-        H = H - (1.0/(y'*H*y)[1])*H*y*y'*H + (1.0/(y'*s)[1])*s*s' # TODO: check for the norm of s and y, and for the orthogonality of y and s
+        # H = H - (1.0/(y'*H*y)[1])*H*y*y'*H + (1.0/(y'*s)[1])*s*s' # TODO: check for the norm of s and y, and for the orthogonality of y and s
+        # H = H - (1.0/(s'*H*s))*H*s*s'*H' + (1.0/(y'*s))*y*y'
+        H = H + ((s'*y + y'*H*y)/((s'*y)^2))*s*s' - (1.0/(s'*y))*(H*y*s'+s*y'*H')
         if verbose
             println("iteration: ", k)
             # println(X)
@@ -85,24 +105,24 @@ end
 
 
 
+"""
 
+    BFGSB(X0::Array{Cdouble,1},H0::Array{Cdouble,2},Nbfgs::Int64,alpha_min::Cdouble,alpha_max::Cdouble,mu::Cdouble,lx::Array{Cdouble,1},ux::Array{Cdouble,1},F::Function,Fgrad::Function,Nsearch::Int64=50,tol::Cdouble=1.0e-8;verbose::Bool=false)
 
+    compute ̂x̂ ∈ argmin{F(x) | x.>= lx and x.<=ux}  using the quasi-Newton method BFGS (see [BFGS wikipedia](https://en.wikipedia.org/wiki/Broyden%E2%80%93Fletcher%E2%80%93Goldfarb%E2%80%93Shanno_algorithm))
 
+    X0:                  starting point
+    H0:                  initial inverse Hessian matrix
+    Nbfgs:               maximum number of iterations
+    alpha_min,alpha_max: line search maximum range
+    mu:                  line search parameter
+    Nsearch:             maximum number of iteration for the line search
+    F:                   cost function to minimize (x::Array{Cdouble}->F(x))
+    Fgrad:               gradient of the cost function (x::Array{Cdouble}->Fgrad(x))
+    lx,ux:               lower and upper boundary of ̂x 
+    tol:                 relative tolerance (stopping criteria: norm of the gradient difference (y), norm of the step (s) and cos(y,s))
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+"""
 function BFGSB(X0::Array{Cdouble,1},H0::Array{Cdouble,2},Nbfgs::Int64,alpha_min::Cdouble,alpha_max::Cdouble,mu::Cdouble,lx::Array{Cdouble,1},ux::Array{Cdouble,1},F::Function,Fgrad::Function,Nsearch::Int64=50,tol::Cdouble=1.0e-8;verbose::Bool=false)
     # allocate some variables and init
     p = Array{Cdouble,1}(undef,length(X0))
@@ -152,7 +172,9 @@ function BFGSB(X0::Array{Cdouble,1},H0::Array{Cdouble,2},Nbfgs::Int64,alpha_min:
         y = Fgrad(X) - y_tmp
         y_tmp = y + y_tmp
         # update the approximation of the inverse Hessian matrix
-        H = H - (1.0/(y'*H*y)[1])*H*y*y'*H + (1.0/(y'*s)[1])*s*s' # TODO: check for the norm of s and y, and for the orthogonality of y and s
+        # H = H - (1.0/(y'*H*y)[1])*H*y*y'*H + (1.0/(y'*s)[1])*s*s' # TODO: check for the norm of s and y, and for the orthogonality of y and s
+        # H = H - (1.0/(s'*H*s))*H*s*s'*H' + (1.0/(y'*s))*y*y'
+        H = H + ((s'*y + y'*H*y)/((s'*y)^2))*s*s' - (1.0/(s'*y))*(H*y*s'+s*y'*H')
         if verbose
             println("iteration: ", k)
             # println(X)
