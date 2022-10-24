@@ -60,8 +60,6 @@ function BFGS(X0::Array{Cdouble,1},H0::Array{Cdouble,2},Nbfgs::Int64,alpha_min::
         y = Fgrad(X) - y_tmp
         y_tmp = y + y_tmp
         # update the approximation of the inverse Hessian matrix
-        # H = H - (1.0/(y'*H*y)[1])*H*y*y'*H + (1.0/(y'*s)[1])*s*s' # TODO: check for the norm of s and y, and for the orthogonality of y and s
-        # H = H - (1.0/(s'*H*s))*H*s*s'*H' + (1.0/(y'*s))*y*y'
         H = H + ((s'*y + y'*H*y)/((s'*y)^2))*s*s' - (1.0/(s'*y))*(H*y*s'+s*y'*H')
         if verbose
             println("iteration: ", k)
@@ -106,6 +104,8 @@ end
 
 
 """
+    BFGSB(X0::Array{Cdouble,1},H0::Array{Cdouble,2},Nbfgs::Int64,alpha_min::Cdouble,alpha_max::Cdouble,mu::Cdouble,lx::Union{Cdouble,Array{Cdouble,1}},ux::Union{Cdouble,Array{Cdouble,1}},F::Function,Fgrad::Function,Nsearch::Int64=50,tol::Cdouble=1.0e-8;verbose::Bool=false,path::Bool=true)
+
 
     BFGSB(X0::Array{Cdouble,1},H0::Array{Cdouble,2},Nbfgs::Int64,alpha_min::Cdouble,alpha_max::Cdouble,mu::Cdouble,lx::Array{Cdouble,1},ux::Array{Cdouble,1},F::Function,Fgrad::Function,Nsearch::Int64=50,tol::Cdouble=1.0e-8;verbose::Bool=false)
 
@@ -121,20 +121,28 @@ end
     Fgrad:               gradient of the cost function (x::Array{Cdouble}->Fgrad(x))
     lx,ux:               lower and upper boundary of ̂x 
     tol:                 relative tolerance (stopping criteria: norm of the gradient difference (y), norm of the step (s) and cos(y,s))
+    verbose:             verbose if set to true
+    path:                keep track of all iterations if set to true
 
 """
-function BFGSB(X0::Array{Cdouble,1},H0::Array{Cdouble,2},Nbfgs::Int64,alpha_min::Cdouble,alpha_max::Cdouble,mu::Cdouble,lx::Array{Cdouble,1},ux::Array{Cdouble,1},F::Function,Fgrad::Function,Nsearch::Int64=50,tol::Cdouble=1.0e-8;verbose::Bool=false)
+function BFGSB(X0::Array{Cdouble,1},H0::Array{Cdouble,2},Nbfgs::Int64,alpha_min::Cdouble,alpha_max::Cdouble,mu::Cdouble,lx::Union{Cdouble,Array{Cdouble,1}},ux::Union{Cdouble,Array{Cdouble,1}},F::Function,Fgrad::Function,Nsearch::Int64=50,tol::Cdouble=1.0e-8;verbose::Bool=false,path::Bool=true)
     # allocate some variables and init
     p = Array{Cdouble,1}(undef,length(X0))
     y = Array{Cdouble,1}(undef,length(X0))
     y_tmp = Array{Cdouble,1}(undef,length(X0))
-    H = Array{Cdouble,2}(undef,size(H0,1),size(H0,2))
-    H = H0
-    X = Array{Cdouble,1}(undef,length(X0))
-    X = X0
+    # H = Array{Cdouble,2}(undef,size(H0,1),size(H0,2))
+    # H = H0
+    H = copy(H0)
+    # X = Array{Cdouble,1}(undef,length(X0))
+    # X = X0
+    X = copy(X0)
     y_tmp = Fgrad(X)
-    Xpath = Array{Cdouble,2}(undef,Nbfgs+1,length(X0))
-    Xpath[1,:] = X0
+    if path
+        Xpath = Array{Cdouble,2}(undef,Nbfgs+1,length(X0))
+        Xpath[1,:] = X0
+    else
+        Xpath = nothing
+    end
     Nlast = Nbfgs+1
 
     #BFGS iterations
@@ -142,38 +150,40 @@ function BFGSB(X0::Array{Cdouble,1},H0::Array{Cdouble,2},Nbfgs::Int64,alpha_min:
         # descent direction
         p = -H*y_tmp
         # enforce the constraints
-        for idx_e = 1:length(X)
-            if ((X[idx_e]<=lx[idx_e]) & (y_tmp[idx_e]>0.0) ) # & (p[idx_e]<0.0))
-            # if (X[idx_e]<=lx[idx_e]) & (p[idx_e]<0.0)
-                p[idx_e] = 0.0
-            end
-            if ((X[idx_e]>=ux[idx_e]) & (y_tmp[idx_e]<0.0) ) # & (p[idx_e]>0.0))
-            # if (X[idx_e]>=ux[idx_e]) & (p[idx_e]>0.0)
-                p[idx_e] = 0.0
-            end
-        end
+        # for idx_e = eachindex(X)  #1:length(X)
+        #     if ((X[idx_e]<=lx[idx_e]) & (y_tmp[idx_e]>0.0) ) 
+        #         p[idx_e] = 0.0
+        #     end
+        #     if ((X[idx_e]>=ux[idx_e]) & (y_tmp[idx_e]<0.0) ) 
+        #         p[idx_e] = 0.0
+        #     end
+        # end
+        p[((X.<=lx).*(y_tmp.>0.0))] .= 0.0
+        p[((X.>=ux).*(y_tmp.<0.0))] .= 0.0
         # step length
         alpha_k = line_search(X,p,alpha_min,alpha_max,mu,F,Fgrad,Nsearch;verbose=verbose)
         # set step and new state
         s = alpha_k*p
         X = X + s
         # enforce the constraints
-        for idx_e in eachindex(X)  #1:length(X)
-            if (X[idx_e]<=lx[idx_e])
-                X[idx_e] = lx[idx_e]
-            end
-            if (X[idx_e]>=ux[idx_e])
-                X[idx_e] = ux[idx_e]
-            end
-        end
+        # for idx_e in eachindex(X)  #1:length(X)
+        #     if (X[idx_e]<=lx[idx_e])
+        #         X[idx_e] = lx[idx_e]
+        #     end
+        #     if (X[idx_e]>=ux[idx_e])
+        #         X[idx_e] = ux[idx_e]
+        #     end
+        # end
+        X = X.*(X.>=lx) + lx.*(X.<lx)
+        X = X.*(X.<=ux) + ux.*(X.>ux)
         # keep track of the path
-        Xpath[k+1,:] = X
+        if path
+            Xpath[k+1,:] = X
+        end
         # set gradient difference
         y = Fgrad(X) - y_tmp
         y_tmp = y + y_tmp
         # update the approximation of the inverse Hessian matrix
-        # H = H - (1.0/(y'*H*y)[1])*H*y*y'*H + (1.0/(y'*s)[1])*s*s' # TODO: check for the norm of s and y, and for the orthogonality of y and s
-        # H = H - (1.0/(s'*H*s))*H*s*s'*H' + (1.0/(y'*s))*y*y'
         H = H + ((s'*y + y'*H*y)/((s'*y)^2))*s*s' - (1.0/(s'*y))*(H*y*s'+s*y'*H')
         if verbose
             println("iteration: ", k)
