@@ -1,4 +1,4 @@
-# BFGS.jl
+# NMOpt
 
 **BFGS** is an simple implementation of the Newton' methods in Julia.
 The main objectives of those methods is to solve convex optimization
