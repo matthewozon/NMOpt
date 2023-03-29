@@ -6,7 +6,7 @@ problem, possibly with constraints and/or limited memory.
 
 The documentation will come at some point:
 
-* [Algorithm](doc/algo.md) describes the algorithm implemented in the module;
+* [Algorithm](src/README.md) describes the algorithm implemented in the module;
 
-* [Use](doc/use.md) describes how to use the module and explains what should 
+* [Use](test/README.md) describes how to use the module and explains what should 
 be implemented for a specific problem;
