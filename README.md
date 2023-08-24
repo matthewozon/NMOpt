@@ -7,9 +7,15 @@
 The main objectives of those methods is to solve convex optimization
 problem, possibly with constraints and/or limited memory.
 
-The documentation will come at some point:
+## Examples
 
-* [Algorithm](src/README.md) describes the algorithm implemented in the module;
+**BFGS**
 
-* [Use](test/README.md) describes how to use the module and explains what should 
-be implemented for a specific problem;
+**L-BFGS**
+
+**BFGS-B**
+
+**L-BFGS-B**
+
+
+![example_optim_path](https://github.com/matthewozon/NMOpt/assets/7929598/13cec604-4986-4885-b02e-1997523a0bfb)
