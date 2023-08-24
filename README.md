@@ -1,4 +1,5 @@
 [![NMOpt CI](https://github.com/matthewozon/NMOpt/actions/workflows/CI_NMOpt.yml/badge.svg)](https://github.com/matthewozon/NMOpt/actions/workflows/CI_NMOpt.yml)
+[![Documentation](https://github.com/matthewozon/NMOpt/actions/workflows/documentation.yml/badge.svg)](https://github.com/matthewozon/NMOpt/actions/workflows/documentation.yml)
 
 # NMOpt
 
