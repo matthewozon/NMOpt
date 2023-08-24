@@ -32,7 +32,7 @@ end
 **Initial conditions**
 ```
 X0 = zeros(Cdouble,2)
-X0[1] = 2.0 #2.5
+X0[1] = 2.0 
 X0[2] = -0.5
 p0 = ones(Cdouble,2)          # first descent direction
 alpha_min = -4.0              # smallest value of the length of the step
@@ -73,3 +73,10 @@ Xend,Xpath,Nlast = LBFGSB(X0+[-0.5;0.0],H0,2Nbfgs,alpha_min,alpha_max,mu,Mmemory
 ```
 ] add add https://github.com/matthewozon/NMOpt
 ```
+
+## Related references
+
+  - More and Sorensen 1982 (Newton's method technical report): BFGS
+  - More 1994 (Line Search Algorithms Sufficient Decrease): line search
+  - Nocedal 1980 (Updating Quasi-Newton Matrices With Limited Storage): limited memory BFGS
+  - Thiébaut (Optimization issues in blind deconvolution algorithms): bounded limited memory BFGS, a.k.a vmlmb
