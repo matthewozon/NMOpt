@@ -9,6 +9,20 @@ problem, possibly with constraints and/or limited memory.
 
 ## Examples
 
+Let $x$ and $y$ in $\mathbb{R}$. We wish to find the optimal pair $(\hat{x},\hat{y})$ solution of the problem
+
+```math
+\underset{x,y}{\arg\min} \left\{e^{x-1} + e^{1-y} + (x-y)^2 + 2\sin(π(x+y))\right\}
+```
+possibly under the constraints $-\frac{1}{2} \leqslant x$ and $y\leqslant\frac{4}{5}$.
+This optimization problem is not convex, however, it is locally convex: the optimal solution depends on the initial point of the algorithm.
+
+The gradient is given by
+
+```math
+\begin{bmatrix}\frac{\partial F}{\partial x}\\\frac{\partial F}{\partial y}\end{bmatrix} = \begin{bmatrix} e^{x-1}  + 2(x-y) + 2\pi\cos(\pi(x+y)) \\ -e^{1-y} - 2(x-y) + 2\pi\cos(\pi(x+y)) \end{bmatrix}
+```
+
 **Loading the package**
 ```
 using NMOpt
@@ -65,6 +79,9 @@ Xend,Hend,Xpath,Nlast = BFGSB(X0,H0,2Nbfgs,alpha_min,alpha_max,mu,lx,ux,F,Fgrad,
 Xend,Xpath,Nlast = LBFGSB(X0+[-0.5;0.0],H0,2Nbfgs,alpha_min,alpha_max,mu,Mmemory,lx,ux,F,Fgrad,Nsearch)
 ```
 
+**Results**
+
+The example is implemented in [test.jl](test/test.jl), and the results are shown in the following figure. The BFGS and L-BFGS results are shown in panel (a), and those of BFGS-B and L-BFGS-B in panel (b). The paths of the algorithm optimal solutions are depicted with scatter dots, and the constraints with straight lines.
 
 ![example_optim_path](https://github.com/matthewozon/NMOpt/assets/7929598/13cec604-4986-4885-b02e-1997523a0bfb)
 
