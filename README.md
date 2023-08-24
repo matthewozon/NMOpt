@@ -88,7 +88,7 @@ The example is implemented in [test.jl](test/test.jl), and the results are shown
 
 ## Install
 ```
-] add add https://github.com/matthewozon/NMOpt
+] add https://github.com/matthewozon/NMOpt
 ```
 
 ## Related references
