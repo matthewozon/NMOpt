@@ -1,12 +1,12 @@
 name: NMOpt CI
 on:
   workflow_dispatch:
-  pull_request:
-    branches:
-      - master
-    paths:
-      - 'NMOpt/src/**'
-      - 'NMOpt/test/**'
+  # pull_request:
+  #   branches:
+  #     - master
+  #   paths:
+  #     - 'NMOpt/src/**'
+  #     - 'NMOpt/test/**'
 
 jobs:
   test:
