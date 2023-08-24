@@ -1,3 +1,5 @@
+[![NMOpt CI](https://github.com/matthewozon/NMOpt/actions/workflows/CI_NMOpt.yml/badge.svg)](https://github.com/matthewozon/NMOpt/actions/workflows/CI_NMOpt.yml)
+
 # NMOpt
 
 **BFGS** is an simple implementation of the Newton' methods in Julia.
