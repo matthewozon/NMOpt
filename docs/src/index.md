@@ -10,4 +10,5 @@ NMOpt.LBFGS
 NMOpt.LBFGSB
 NMOpt.line_search
 NMOpt.belong_to
+NMOpt.BFGS_param
 ```

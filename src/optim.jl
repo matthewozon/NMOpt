@@ -13,6 +13,9 @@
 #
 #------------------------------------------------------------------------------
 
+# struct with all the BFGS parameters 
+include("BFGS_struct.jl")
+
 # BFGS algorithm: compute Nbfgs iteration from the initial point X0 and the initial approximation of the inverse Hessian matrix H0
 include("BFGS.jl")
 

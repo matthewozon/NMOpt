@@ -24,6 +24,7 @@ This is the [`NMOpt`](@ref), it contains
 * [`NMOpt.LBFGSB`](@ref)
 * [`NMOpt.belong_to`](@ref)
 * [`NMOpt.line_search`](@ref)
+* [`NMOpt.BFGS_param`](@ref)
 
 ref:
   - More and Sorensen 1982 (Newton's method technical report): BFGS
@@ -36,6 +37,9 @@ module NMOpt # Newton based optimization Method
 using LinearAlgebra # norm is in there
 
 export belong_to, line_search # those functions are not mean to be used by the end user and shouldn't be exported, but they are for the time being # trial_alpha, interval_update, 
+
+# parameter structure 
+export BFGS_param
 
 # probably not the best names
 export BFGS, BFGSB, LBFGS, LBFGSB # BFGS, constrained BFGS, limited memory BFGS and bounded limited memory BFGS

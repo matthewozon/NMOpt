@@ -10,6 +10,7 @@
 """
 
     LBFGS(X0::Array{Cdouble,1},H0::Array{Cdouble,2},Nbfgs::Int64,alpha_min::Cdouble,alpha_max::Cdouble,mu::Cdouble,M::Int64,F::Function,Fgrad::Function,Nsearch::Int64=50,tol::Cdouble=1.0e-8;verbose::Bool=false,path::Bool=true)
+    LBFGS(X0::Array{Cdouble,1},H0::Array{Cdouble,2},F::Function,Fgrad::Function,ws::BFGS_param;verbose::Bool=false,path::Bool=true)
     
     compute ̂x̂ ∈ argmin{F(x)}  using the limitted memory quasi-Newton method L-BFGS  (see [BFGS wikipedia](https://en.wikipedia.org/wiki/Limited-memory_BFGS))
 
@@ -23,6 +24,8 @@
     F:                   cost function to minimize (x::Array{Cdouble}->F(x))
     Fgrad:               gradient of the cost function (x::Array{Cdouble}->Fgrad(x))
     tol:                 relative tolerance (stopping criteria: norm of the gradient difference (y), norm of the step (s) and cos(y,s))
+
+    ws:                  BFGS_param structure with the BFGS parameters [`BFGS_param`](@ref)
 
     optional arguments:
 
@@ -147,4 +150,7 @@ function LBFGS(X0::Array{Cdouble,1},H0::Array{Cdouble,2},Nbfgs::Int64,alpha_min:
         end
     end
     X,Xpath,Nlast
+end
+function LBFGS(X0::Array{Cdouble,1},H0::Array{Cdouble,2},F::Function,Fgrad::Function,ws::BFGS_param;verbose::Bool=false,path::Bool=true)
+    LBFGS(X0,H0,ws.Nbfgs,ws.alpha_min,ws.alpha_max,ws.mu,ws.M,F,Fgrad,ws.Nsearch,ws.tol;verbose=verbose,path=path)
 end

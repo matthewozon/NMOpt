@@ -9,7 +9,9 @@
 """
 
     BFGSB(X0::Array{Cdouble,1},H0::Array{Cdouble,2},Nbfgs::Int64,alpha_min::Cdouble,alpha_max::Cdouble,mu::Cdouble,lx::Union{Cdouble,Array{Cdouble,1}},ux::Union{Cdouble,Array{Cdouble,1}},F::Function,Fgrad::Function,Nsearch::Int64=50,tol::Cdouble=1.0e-8;verbose::Bool=false,path::Bool=true)
+    BFGSB(X0::Array{Cdouble,1},H0::Array{Cdouble,2},lx::Union{Cdouble,Array{Cdouble,1}},ux::Union{Cdouble,Array{Cdouble,1}},F::Function,Fgrad::Function,ws::BFGS_param;verbose::Bool=false,path::Bool=true)
     BFGSB(X0::Array{Cdouble,1},H0::Array{Cdouble,2},Nbfgs::Int64,alpha_min::Cdouble,alpha_max::Cdouble,mu::Cdouble,lx::Array{Cdouble,1},ux::Array{Cdouble,1},F::Function,Fgrad::Function,Nsearch::Int64=50,tol::Cdouble=1.0e-8;verbose::Bool=false)
+    BFGSB(X0::Cdouble,H0::Cdouble,lx::Cdouble,ux::Cdouble,F::Function,Fgrad::Function,ws::BFGS_param;verbose::Bool=false,path::Bool=true)
 
     compute ̂x̂ ∈ argmin{F(x) | x.>= lx and x.<=ux}  using the quasi-Newton method BFGS (see [BFGS wikipedia](https://en.wikipedia.org/wiki/Broyden%E2%80%93Fletcher%E2%80%93Goldfarb%E2%80%93Shanno_algorithm))
 
@@ -23,6 +25,8 @@
     Fgrad:               gradient of the cost function (x::Array{Cdouble}->Fgrad(x))
     lx,ux:               lower and upper boundary of ̂x 
     tol:                 relative tolerance (stopping criteria: norm of the gradient difference (y), norm of the step (s) and cos(y,s))
+
+    ws:                  BFGS_param structure with the BFGS parameters [`BFGS_param`](@ref)
 
     optional arguments:
 
@@ -103,6 +107,9 @@ function BFGSB(X0::Array{Cdouble,1},H0::Array{Cdouble,2},Nbfgs::Int64,alpha_min:
     end
     X,H,Xpath,Nlast
 end
+function BFGSB(X0::Array{Cdouble,1},H0::Array{Cdouble,2},lx::Union{Cdouble,Array{Cdouble,1}},ux::Union{Cdouble,Array{Cdouble,1}},F::Function,Fgrad::Function,ws::BFGS_param;verbose::Bool=false,path::Bool=true)
+    BFGSB(X0,H0,ws.Nbfgs,ws.alpha_min,ws.alpha_max,ws.mu,lx,ux,F,Fgrad,ws.Nsearch,ws.tol;verbose=verbose,path=path)
+end
 
 
 
@@ -166,4 +173,7 @@ function BFGSB(X0::Cdouble,H0::Cdouble,Nbfgs::Int64,alpha_min::Cdouble,alpha_max
         H = H + ((s*y + y*H*y)/((s*y)^2))*s*s - (1.0/(s*y))*(H*y*s+s*y*H)
     end
     X,H,Xpath,Nlast
+end
+function BFGSB(X0::Cdouble,H0::Cdouble,lx::Cdouble,ux::Cdouble,F::Function,Fgrad::Function,ws::BFGS_param;verbose::Bool=false,path::Bool=true)
+    BFGSB(X0,H0,ws.Nbfgs,ws.alpha_min,ws.alpha_max,ws.mu,lx,ux,F,Fgrad,ws.Nsearch,ws.tol;verbose=verbose,path=path)
 end
