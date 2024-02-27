@@ -147,7 +147,7 @@ function test_BFGS_struct()
 
     cond1 = isapprox(sum((Xend-[1.5;1.5]).^2),0.0,atol=1.0e-15)
     cond2 = !any(isnan.(Hend)) & !any(isinf.(Hend))
-    cond3 = (Nlast<=(Nbfgs+1))
+    cond3 = (Nlast<=(ws.Nbfgs+1))
     cond4 = !any(isnan.(Xpath[1:Nlast,:])) & !any(isinf.(Xpath[1:Nlast,:]))
 
 
@@ -168,7 +168,7 @@ function test_BFGS_struct()
 
     cond5 = isapprox(abs(Xend-1.5),0.0,atol=1.0e-15)
     cond6 = !(isnan(Hend)) & !(isinf.(Hend))
-    cond7 = (Nlast<=(Nbfgs+1))
+    cond7 = (Nlast<=(ws.Nbfgs+1))
     cond8 = !any(isnan.(Xpath[1:Nlast])) & !any(isinf.(Xpath[1:Nlast]))
 
     cond1 & cond2 & cond3 & cond4 & cond5 & cond6 & cond7 & cond8
@@ -260,7 +260,7 @@ function test_BFGSB_struct()
 
     cond1 = isapprox(sum((Xend-[1.5;0.0]).^2),0.0,atol=1.0e-15)
     cond2 = !any(isnan.(Hend)) & !any(isinf.(Hend))
-    cond3 = (Nlast<=(Nbfgs+1))
+    cond3 = (Nlast<=(ws.Nbfgs+1))
     cond4 = !any(isnan.(Xpath[1:Nlast,:])) & !any(isinf.(Xpath[1:Nlast,:]))
 
 
@@ -284,7 +284,7 @@ function test_BFGSB_struct()
 
     cond5 = isapprox(abs(Xend-0.0),0.0,atol=1.0e-15)
     cond6 = !(isnan(Hend)) & !(isinf.(Hend))
-    cond7 = (Nlast<=(Nbfgs+1))
+    cond7 = (Nlast<=(ws.Nbfgs+1))
     cond8 = !any(isnan.(Xpath[1:Nlast])) & !any(isinf.(Xpath[1:Nlast]))
 
     cond1 & cond2 & cond3 & cond4 & cond5 & cond6 & cond7 & cond8
@@ -344,7 +344,7 @@ function test_LBFGS_struct()
     Xend,Xpath,Nlast = LBFGS(X0,H0,F,Fgrad,ws)
 
     cond1 = isapprox(sum((Xend-[1.5;1.5]).^2),0.0,atol=1.0e-15)
-    cond2 = (Nlast<=(Nbfgs+1))
+    cond2 = (Nlast<=(ws.Nbfgs+1))
     if (!isnothing(Xpath))
         cond3 = !any(isnan.(Xpath[1:Nlast,:])) & !any(isinf.(Xpath[1:Nlast,:]))
     else
@@ -412,7 +412,7 @@ function test_LBFGSB_struct()
     Xend,Xpath,Nlast = LBFGSB(X0,H0,lx,ux,F,Fgrad,ws)
 
     cond1 = isapprox(sum((Xend-[1.5;0.0]).^2),0.0,atol=1.0e-15)
-    cond2 = (Nlast<=(Nbfgs+1))
+    cond2 = (Nlast<=(ws.Nbfgs+1))
     if (!isnothing(Xpath))
         cond3 = !any(isnan.(Xpath[1:Nlast,:])) & !any(isinf.(Xpath[1:Nlast,:]))
     else
