@@ -1,6 +1,6 @@
 name = "NMOpt"
 uuid = "ad0eafcd-0556-4673-9a02-4d69c7f573d5"
-version = "0.0.0"
+version = "0.0.1"
 
 [deps]
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
